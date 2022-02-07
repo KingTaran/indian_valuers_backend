@@ -1,7 +1,7 @@
 const router = require("express").Router();
 const User = require("../models/userModel");
 
-router.put("/addmoderator", async (req, res) => {
+router.put("/addmod", async (req, res) => {
   try {
     console.log(req.body);
     if (!req.body.requestorId)
@@ -12,8 +12,7 @@ router.put("/addmoderator", async (req, res) => {
     if (user.userType !== "admin") {
       return res.status(401).json({ errorMessage: "unauthorized" });
     }
-    const updatedUser = User.find({});
-    // const updatedUser = User.findOne({ email: req.body._id });
+    const updatedUser =await User.findOneAndUpdate({email: req.body.userEmail},{userType: 'moderator'});
     console.log("moderator added");
     console.log(updatedUser);
     res.json(updatedUser);
@@ -21,21 +20,20 @@ router.put("/addmoderator", async (req, res) => {
     res.json(err);
   }
 });
-router.put("/removemoderator", async (req, res) => {
+router.put("/removemod", async (req, res) => {
   try {
     console.log(req.body);
     if (!req.body.requestorId)
       return res
         .status(400)
         .json({ errorMessage: "requestor email not found in request" });
-    const user = await User.findById(req.body.requestorId);
+    const user = await User.findOne({email:req.body.requestorId});
     if (user.userType !== "admin") {
       return res.status(401).json({ errorMessage: "unauthorized" });
     }
-    const updatedUser = User.findOneAndUpdate(
-      { _id: req.body._id },
-      { userType: "normal" }
-    );
+    const updatedUser =await User.findOneAndUpdate({email: req.body.userEmail},{userType: 'normal'});
+    console.log("moderator removed");
+    console.log(updatedUser);
     res.json(updatedUser);
   } catch (err) {
     res.json(err);

@@ -22,44 +22,54 @@ router.post("/signup", async (req, res) => {
   }
 });
 
-router.get("/getusertype", async (req, res) => {
+router.get("/usertype", async (req, res) => {
   try {
     console.log(req.body);
     if (!req.body.email)
       return res
         .status(401)
         .json({ errorMessage: "email not found in request" });
-    const user = await User.findById(req.body.email);
+    const user = await User.findOne({email:req.body.email});
     res.json({ userType: user.userType });
   } catch (err) {
     res.json(err);
   }
 });
-router.get("/allusers", async (req, res) => {
+router.get("/getall", async (req, res) => {
   try {
     console.log(req.body);
     if (!req.body.requestorId)
       return res
         .status(400)
         .json({ errorMessage: "requestor email not found in request" });
-    const user = await User.findById(req.body.requestorId);
+    const user = await User.findOne({email: req.body.requestorId});
     if (user.userType !== "admin") {
       return res.status(401).json({ errorMessage: "unauthorized" });
     }
-    const allUsers= User.find({ userType: {$ne : 'admin' }},{userType:1, userName:1, email: 1})
-    res.json({ userType: user.userType });
+    const allUsers= await User.find({ userType: {$ne : 'admin' }},{userType:1, userName:1, email: 1})
+    res.json(allUsers);
   } catch (err) {
     res.json(err);
   }
 });
 
 router.delete("/", async (req, res) => {
-  res.send("test");
-  const { phoneNumber, password, passwordVerify } = req.body;
-  const existingUser = await User.findOneAndUpdate(
-    { phoneNumber },
-    { password: "a password" }
-  );
+
+  try {
+    console.log(req.body);
+    if (!req.body.requestorId)
+      return res
+        .status(400)
+        .json({ errorMessage: "requestor email not found in request" });
+    const user = await User.findOne({email: req.body.requestorId});
+    if (user.userType !== "admin") {
+      return res.status(401).json({ errorMessage: "unauthorized" });
+    }
+    const deletedUser= await User.deleteOne({email: req.body.email})
+    res.json(deletedUser);
+  } catch (err) {
+    res.json(err);
+  }
 });
 
 module.exports = router;

@@ -7,7 +7,7 @@ router.post("/subscribe", async (req, res) => {
         const newSubscriber = new Subscriber({
             name: req.body.name,
             email: req.body.email,
-            phonenumber : req.body.phoneNumber,
+            phoneNumber : req.body.phoneNumber,
         });
         const savedSubscriber = await newSubscriber.save();
         res.send(savedSubscriber);

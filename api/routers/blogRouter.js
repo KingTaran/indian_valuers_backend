@@ -1,7 +1,6 @@
 const router = require("express").Router();
 const { NewBlog, Blog } = require("../models/blogModel");
 const User = require("../models/userModel");
-const BlogCategory = require("../models/categoryModel");
 
 router.get("/all", async (req, res) => {
   try {
@@ -34,16 +33,17 @@ router.get("/newblogs", async (req, res) => {
   }
 });
 
-router.get("/byCategory:category", async (req, res) => {
+router.get("/byCategory", async (req, res) => {
   try {
-    const blogsByCategory = BlogCategory.find({
-      categoryType: req.params.category,
-    }).populate("categoryBlogs");
+    const blogsByCategory = await Blog.find({
+    categoryName : req.body.categoryName,
+    });
     res.json(blogsByCategory);
   } catch (err) {
     res.send(err);
   }
 });
+
 
 router.post("/newblog", async (req, res) => {
   try {
@@ -53,7 +53,9 @@ router.post("/newblog", async (req, res) => {
       author: user._id,
       title: req.body.title,
       date: new Date(),
-      category: req.body.categories,
+      mainCategory: req.body.mainCategory,
+      subCategory : req.body.subCategory,
+      categoryName : req.body.categoryName,
       content: req.body.content,
       blogImage_Url: req.body.blogImage_Url,
     });
@@ -84,19 +86,51 @@ router.post("/approve", async (req, res) => {
       author: approveBlog.author,
       title: approveBlog.title,
       date: approveBlog.date,
-      category: approveBlog.category,
+      mainCategory: approveBlog.mainCategory,
+      subCategory : approveBlog.subCategory,
+      categoryName : approveBlog.categoryName,
       content: approveBlog.content,
       blogImage_Url: approveBlog.blogImage_Url,
     });
 
     const approvedBlog = await newBlog.save();
-    // const categoryAvailable = await BlogCategory.find( {categoryType : { $in : approveBlog.category}});
-    // if (categoryAvailable) {
-    //   const updatedCategory = await BlogCategory.findOneAndUpdate( {categoryType : { $in : approveBlog.category}}, { $push: { categoryBlogs: approvedBlog._id }});
-    // }
     const updatedUser = await User.findByIdAndUpdate(approvedBlog.author, {
       $push: { blogsPosted: approvedBlog._id },
     });
+    res.send(approvedBlog);
+  } catch (err) {
+    console.error(err);
+    res.status(500).send();
+  }
+});
+router.post("/approveEdited", async (req, res) => {
+  try {
+    console.log(req.body);
+    if (!req.body.requestorId)
+      return res
+        .status(400)
+        .json({ errorMessage: "requestor email not found in request" });
+    const requestor = await User.findOne({ email: req.body.requestorId });
+    if (requestor.userType !== "admin" && requestor.userType !== "moderator") {
+      return res.status(401).json({ errorMessage: "unauthorized" });
+    }
+    const approveBlog = await NewBlog.findOneAndDelete({
+      _id: req.body.approvedblogId,
+    });
+    console.log(approveBlog);
+    const newBlog = new Blog({
+      author: approveBlog.author,
+      date: approveBlog.date,
+      title: req.body.title,
+      mainCategory: req.body.mainCategory,
+      subCategory : req.body.subCategory,
+      categoryName : req.body.categoryName,
+      content: req.body.content,
+      blogImage_Url: approveBlog.blogImage_Url,
+    });
+
+    const approvedBlog = await newBlog.save();
+    const updatedUser = await User.findByIdAndUpdate(approvedBlog.author, { $push: { blogsPosted: approvedBlog._id }});
     res.send(approvedBlog);
   } catch (err) {
     console.error(err);
@@ -111,7 +145,7 @@ router.post("/reject", async (req, res) => {
       return res
         .status(400)
         .json({ errorMessage: "requestor email not found in request" });
-    const user = await User.findOne({email :req.body.requestorId});
+    const user = await User.findOne({ email: req.body.requestorId });
     if (user.userType !== "admin" && user.userType !== "moderator") {
       return res.status(401).json({ errorMessage: "unauthorized" });
     }
@@ -133,7 +167,7 @@ router.delete("/delete", async (req, res) => {
       return res
         .status(400)
         .json({ errorMessage: "requestor email not found in request" });
-    const user = await User.findOne({email :req.body.requestorId});
+    const user = await User.findOne({ email: req.body.requestorId });
     if (user.userType !== "admin" && user.userType !== "moderator") {
       return res.status(401).json({ errorMessage: "unauthorized" });
     }
@@ -149,6 +183,7 @@ router.delete("/delete", async (req, res) => {
     res.status(500).send();
   }
 });
+
 router.put("/save", async (req, res) => {
   try {
     console.log(req.body);
@@ -156,7 +191,7 @@ router.put("/save", async (req, res) => {
       return res
         .status(400)
         .json({ errorMessage: "requestor email not found in request" });
-    const updatedUser = await User.findOneAndUpdate({email: req.body.requestorId}, {
+    const updatedUser = await User.findOneAndUpdate({ email: req.body.requestorId }, {
       $push: { savedBlogs: req.body.blogId },
     });
     res.send(updatedUser);
@@ -165,6 +200,7 @@ router.put("/save", async (req, res) => {
     res.status(500).send();
   }
 });
+
 router.put("/unsave", async (req, res) => {
   try {
     console.log(req.body);
@@ -172,7 +208,7 @@ router.put("/unsave", async (req, res) => {
       return res
         .status(400)
         .json({ errorMessage: "requestor email not found in request" });
-    const updatedUser = await User.findOneAndUpdate({email: req.body.requestorId}, {
+    const updatedUser = await User.findOneAndUpdate({ email: req.body.requestorId }, {
       $pull: { savedBlogs: req.body.blogId },
     });
     res.send(updatedUser);

@@ -1,6 +1,7 @@
 const router = require("express").Router();
 const User = require("../models/userModel");
 
+
 router.put("/addmod", async (req, res) => {
   try {
     console.log(req.body);
@@ -39,5 +40,6 @@ router.put("/removemod", async (req, res) => {
     res.json(err);
   }
 });
+
 
 module.exports = router;

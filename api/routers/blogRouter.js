@@ -12,7 +12,6 @@ router.get("/all", async (req, res) => {
 });
 router.get("/newblogs", async (req, res) => {
   try {
-    console.log(req.body);
     if (!req.body.requestorId)
       return res
         .status(400)
@@ -25,8 +24,6 @@ router.get("/newblogs", async (req, res) => {
       "author",
       "_id userName email"
     );
-    console.log("21blogs");
-    console.log("blogs");
     res.json(blogs);
   } catch (err) {
     res.json(err);
@@ -48,7 +45,6 @@ router.get("/byCategory", async (req, res) => {
 router.post("/newblog", async (req, res) => {
   try {
     const user = await User.findOne({ email: req.body.author });
-    console.log(req.body);
     const newBlog = new NewBlog({
       author: user._id,
       title: req.body.title,
@@ -69,7 +65,6 @@ router.post("/newblog", async (req, res) => {
 
 router.post("/approve", async (req, res) => {
   try {
-    console.log(req.body);
     if (!req.body.requestorId)
       return res
         .status(400)
@@ -81,7 +76,6 @@ router.post("/approve", async (req, res) => {
     const approveBlog = await NewBlog.findOneAndDelete({
       _id: req.body.approvedblogId,
     });
-    console.log(approveBlog);
     const newBlog = new Blog({
       author: approveBlog.author,
       title: approveBlog.title,
@@ -105,7 +99,6 @@ router.post("/approve", async (req, res) => {
 });
 router.post("/approveEdited", async (req, res) => {
   try {
-    console.log(req.body);
     if (!req.body.requestorId)
       return res
         .status(400)
@@ -117,7 +110,6 @@ router.post("/approveEdited", async (req, res) => {
     const approveBlog = await NewBlog.findOneAndDelete({
       _id: req.body.approvedblogId,
     });
-    console.log(approveBlog);
     const newBlog = new Blog({
       author: approveBlog.author,
       date: approveBlog.date,
@@ -140,7 +132,6 @@ router.post("/approveEdited", async (req, res) => {
 
 router.post("/reject", async (req, res) => {
   try {
-    console.log(req.body);
     if (!req.body.requestorId)
       return res
         .status(400)
@@ -162,7 +153,6 @@ router.post("/reject", async (req, res) => {
 
 router.delete("/delete", async (req, res) => {
   try {
-    console.log(req.body);
     if (!req.body.requestorId)
       return res
         .status(400)
@@ -186,7 +176,6 @@ router.delete("/delete", async (req, res) => {
 
 router.put("/save", async (req, res) => {
   try {
-    console.log(req.body);
     if (!req.body.requestorId)
       return res
         .status(400)
@@ -203,7 +192,6 @@ router.put("/save", async (req, res) => {
 
 router.put("/unsave", async (req, res) => {
   try {
-    console.log(req.body);
     if (!req.body.requestorId)
       return res
         .status(400)

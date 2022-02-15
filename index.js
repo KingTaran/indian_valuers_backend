@@ -24,7 +24,6 @@ mongoose.connect(process.env.MDB_CONNECT,{
     useUnifiedTopology: true,
 } , (err)=>{
     if(err) return console.error(err);
-    console.log("connected to MongoDB");
 });
 
 app.get("/test", (req, res)=>{

@@ -3,7 +3,6 @@ const Subscriber = require("../models/newsletterModel");
 
 router.post("/subscribe", async (req, res) => {
     try {
-        console.log(req.body);
         const newSubscriber = new Subscriber({
             name: req.body.name,
             email: req.body.email,

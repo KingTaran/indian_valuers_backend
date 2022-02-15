@@ -4,7 +4,6 @@ const dotenv = require("dotenv");
 
 router.post("/signup", async (req, res) => {
   try {
-    console.log(req.body);
     const newUser = new User({
       userType: "normal",
       userName: req.body.userName,
@@ -14,7 +13,6 @@ router.post("/signup", async (req, res) => {
       blogsPosted:[],
     });
     const savedUser = await newUser.save();
-    console.log(savedUser);
     res.send(savedUser);
   } catch (err) {
     console.error(err);
@@ -24,7 +22,6 @@ router.post("/signup", async (req, res) => {
 
 router.get("/usertype", async (req, res) => {
   try {
-    console.log(req.body);
     if (!req.body.email)
       return res
         .status(401)
@@ -37,7 +34,6 @@ router.get("/usertype", async (req, res) => {
 });
 router.get("/getall", async (req, res) => {
   try {
-    console.log(req.body);
     if (!req.body.requestorId)
       return res
         .status(400)
@@ -56,7 +52,6 @@ router.get("/getall", async (req, res) => {
 router.delete("/", async (req, res) => {
 
   try {
-    console.log(req.body);
     if (!req.body.requestorId)
       return res
         .status(400)

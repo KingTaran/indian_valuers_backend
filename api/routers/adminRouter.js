@@ -4,7 +4,6 @@ const User = require("../models/userModel");
 
 router.put("/addmod", async (req, res) => {
   try {
-    console.log(req.body);
     if (!req.body.requestorId)
       return res
         .status(400)
@@ -14,8 +13,6 @@ router.put("/addmod", async (req, res) => {
       return res.status(401).json({ errorMessage: "unauthorized" });
     }
     const updatedUser =await User.findOneAndUpdate({email: req.body.userEmail},{userType: 'moderator'});
-    console.log("moderator added");
-    console.log(updatedUser);
     res.json(updatedUser);
   } catch (err) {
     res.json(err);
@@ -23,7 +20,6 @@ router.put("/addmod", async (req, res) => {
 });
 router.put("/removemod", async (req, res) => {
   try {
-    console.log(req.body);
     if (!req.body.requestorId)
       return res
         .status(400)
@@ -33,8 +29,6 @@ router.put("/removemod", async (req, res) => {
       return res.status(401).json({ errorMessage: "unauthorized" });
     }
     const updatedUser =await User.findOneAndUpdate({email: req.body.userEmail},{userType: 'normal'});
-    console.log("moderator removed");
-    console.log(updatedUser);
     res.json(updatedUser);
   } catch (err) {
     res.json(err);
